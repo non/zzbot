@@ -68,6 +68,9 @@ All code is available to you under the Apache 2 license, available at
 https://www.apache.org/licenses/LICENSE-2.0.
 
 ZZBot is based on code from [Multibot](https://github.com/lopex/multibot) and [Spirebot](https://github.com/non/spirebot).
+
 Multibot is copyright Marcin Mielżyński, 2012-2017.
+
 Spirebot is copyright Erik Osheim, 2013-2014.
+
 ZZBot is copyright Erik Osheim, 2018.
