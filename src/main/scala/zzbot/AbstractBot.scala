@@ -83,35 +83,63 @@ trait AbstractBot {
       .take(5)
       .foreach(m => send(channel, " " + munge(m)))
 
+  // FIXME: -Dscala.color breaks these regexes, but i'm not sure if
+  // they are actually needed or not. it seems nice to know how to
+  // refer to output (e.g. res33) although possibly it's a bit junky.
+  def interpret(si: IMain, prog: String, cout: ByteArrayOutputStream): String =
+    si.interpret(prog) match {
+      case Results.Success =>
+        cout.toString.replaceAll("(?m:^res[0-9]+: +)", "")
+      case Results.Error =>
+        cout.toString.replaceAll("^<console>:[0-9]+: +", "")
+      case Results.Incomplete =>
+        "error: incomplete expression"
+    }
+
   val Cmd = """^([^ ]+) (.*)$""".r
 
   def receive(msg: Msg): Unit =
     msg.message match {
-      case "@quit" =>
-        if (admins(msg.sender)) quit()
-      case Cmd("@join", m) =>
-        if (admins(msg.sender)) parseChannel(m).foreach(join(_))
-      case Cmd("@leave", m) =>
-        if (admins(msg.sender)) parseChannel(m).foreach(leave(_))
       case Cmd("!", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, si.interpret(m) match {
-            case Results.Success =>
-              cout.toString.replaceAll("(?m:^res[0-9]+: )", "")
-            case Results.Error =>
-              cout.toString.replaceAll("^<console>:[0-9]+: ", "")
-            case Results.Incomplete =>
-              "error: unexpected EOF found, incomplete expression"
-          })
+          sendLines(msg.channel, interpret(si, m, cout))
         }
-      case Cmd("!type", m) =>
+
+      case Cmd(":type", m) =>
         interpreter(msg.channel) { (si, cout) =>
           send(msg.channel, si.typeOfExpression(m).directObjectString)
         }
-      case "!reset" =>
+      case ":reset" =>
         interpreters -= msg.channel
-      case "!reset-all" =>
+      case ":reset-all" =>
         interpreters.clear()
+      case Cmd(":sizeof", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.sizeOf($m)", cout))
+        }
+      case Cmd(":fullsizeof", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.fullSizeOf($m)", cout))
+        }
+      case Cmd(":staticsizeof", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.staticSizeOf($m)", cout))
+        }
+      case Cmd(":reify", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          sendLines(msg.channel, interpret(si, s"_root_.scala.reflect.runtime.universe.reify { $m }", cout))
+        }
+      case Cmd(":time", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.timer { $m }", cout))
+        }
+      case ":quit" =>
+        if (admins(msg.sender)) quit()
+      case Cmd(":join", m) =>
+        if (admins(msg.sender)) parseChannel(m).foreach(join(_))
+      case Cmd(":leave", m) =>
+        if (admins(msg.sender)) parseChannel(m).foreach(leave(_))
+
       case _ =>
         ()
     }

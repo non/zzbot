@@ -4,8 +4,9 @@ version := "0.1.0"
 
 scalaVersion := "2.12.4"
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 libraryDependencies ++=
-  //"org.spire-math" %% "kind-projector" % "0.9.4" ::
   "pircbot" % "pircbot" % "1.5.0" ::
   "com.github.gilbertw1" %% "slack-scala-client" % "0.2.2" ::
   "org.scala-lang" % "scala-compiler" % "2.12.4" ::
@@ -24,6 +25,9 @@ libraryDependencies ++=
   "org.typelevel" %% "spire" % "0.14.1" ::
   "org.spire-math" %% "sortilege" % "0.4.0" ::
   "org.spire-math" %% "zillion" % "0.3.0" ::
+  // these are nice-to-have tools for doing approximate measurements
+  ("org.spire-math" %% "clouseau" % "0.1-SNAPSHOT" from "file://./plugins/clouseau_2.12-0.1-SNAPSHOT.jar") ::
+  "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT" ::
   Nil
 
 fork in run := true
