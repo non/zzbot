@@ -17,6 +17,10 @@ But it's way ahead of what's second best!
 ZZBot is intended to be a multi-platform bot for evaluating Scala
 code. Currently it supports IRC and Slack.
 
+### demo
+
+![Screenshot of the bot in action](https://github.com/non/zzbow/raw/master/demo.png)
+
 ### details
 
 To use the bot, you'll want to:

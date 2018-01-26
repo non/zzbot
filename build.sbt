@@ -26,7 +26,7 @@ libraryDependencies ++=
   "org.spire-math" %% "sortilege" % "0.4.0" ::
   "org.spire-math" %% "zillion" % "0.3.0" ::
   // these are nice-to-have tools for doing approximate measurements
-  ("org.spire-math" %% "clouseau" % "0.1-SNAPSHOT" from "file://./plugins/clouseau_2.12-0.1-SNAPSHOT.jar") ::
+  ("org.spire-math" %% "clouseau" % "0.1-SNAPSHOT" from s"file:///${System.getProperty("user.dir")}plugins/clouseau_2.12-0.1-SNAPSHOT.jar") ::
   "com.github.ichoran" %% "thyme" % "0.1.2-SNAPSHOT" ::
   Nil
 
