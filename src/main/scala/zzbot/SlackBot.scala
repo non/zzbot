@@ -1,4 +1,4 @@
-package zzzbot
+package zzbot
 
 import slack.rtm.SlackRtmClient
 import akka.actor.ActorSystem

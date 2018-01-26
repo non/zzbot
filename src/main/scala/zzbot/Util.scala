@@ -1,4 +1,4 @@
-package zzzbot
+package zzbot
 
 object Util {
 

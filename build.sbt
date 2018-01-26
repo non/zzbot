@@ -1,4 +1,4 @@
-name := "zzzbot"
+name := "zzbot"
 
 version := "0.1.0"
 
@@ -28,7 +28,7 @@ libraryDependencies ++=
 
 fork in run := true
 
-mainClass in assembly := Some("zzzbot.Main")
+mainClass in assembly := Some("zzbot.Main")
 
 scalacOptions ++=
   "-feature" ::

@@ -1,4 +1,4 @@
-package zzzbot
+package zzbot
 
 import java.io.{PrintStream, ByteArrayOutputStream}
 import scala.collection.mutable

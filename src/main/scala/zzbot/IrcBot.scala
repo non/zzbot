@@ -1,4 +1,4 @@
-package zzzbot
+package zzbot
 
 import org.jibble.pircbot.PircBot
 
@@ -37,7 +37,7 @@ object IrcBot extends PircBot with AbstractBot {
   // platform-dependent implementation
 
   lazy val botName: String =
-    Util.str("bot.name", "zzzbot")
+    Util.str("bot.name", "zzbot")
 
   lazy val server: String =
     Util.str("bot.server", "irc.freenode.net")

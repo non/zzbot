@@ -7,6 +7,6 @@ java \
     -Dsun.jnu.encoding=UTF-8 \
     -Dfile.encoding=UTF-8 \
     -Dbot.platform=irc \
-    -Dbot.name=zzzbot \
+    -Dbot.name=zzbot \
     -Dbot.plugins=plugins/kind-projector_2.12-0.9.4.jar \
-    -jar target/scala-2.12/zzzbot-assembly-0.1.0.jar
+    -jar target/scala-2.12/zzbot-assembly-0.1.0.jar

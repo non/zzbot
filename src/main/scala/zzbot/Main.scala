@@ -1,4 +1,4 @@
-package zzzbot
+package zzbot
 
 object Main {
   def main(args: Array[String]): Unit =
