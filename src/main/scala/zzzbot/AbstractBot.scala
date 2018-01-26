@@ -1,4 +1,4 @@
-package org.multibot
+package zzzbot
 
 import java.io.{PrintStream, ByteArrayOutputStream}
 import scala.collection.mutable
@@ -12,22 +12,25 @@ trait AbstractBot {
 
   type Channel
 
-  def run(): Unit
+  def parseChannel(s: String): Option[Channel]
 
+  def run(): Unit
+  def quit(): Nothing
+  def join(ch: Channel): Unit
+  def leave(ch: Channel): Unit
   def send(ch: Channel, msg: String): Unit
 
   // platform-independent implementation
 
-  def prop[A](name: String, empty: => A)(f: String => A): A =
-    Option(System.getProperty(name)).map(f).getOrElse(empty)
+  lazy val admins: Set[String] =
+    Util.prop("bot.admins", Set("d_m"))(_.split(",").toSet)
 
-  def str(name: String, empty: => String): String =
-    prop(name, empty)(identity)
+  lazy val imports: List[String] =
+    Util.strs("bot.imports", Nil)
 
-  def strs(name: String, empty: => List[String]): List[String] =
-    prop(name, List.empty[String])(_.split(",").toList)
-
-  lazy val imports = strs("stripebot.imports", Nil)
+  // paths to compiler plugins
+  lazy val plugins: List[String] =
+    Util.strs("bot.plugins", Nil)
 
   final val savedOut = System.out
   final val savedErr = System.err
@@ -52,7 +55,10 @@ trait AbstractBot {
     }
 
   def newInterpreter(): IMain = {
+
     val settings = new nsc.Settings(null)
+    settings.plugin.value = plugins
+    settings.YpartialUnification.value = true
     settings.usejavacp.value = true
     settings.deprecation.value = true
     settings.feature.value = false
@@ -61,15 +67,16 @@ trait AbstractBot {
     si
   }
 
-  val interpreters = mutable.Map.empty[Channel, IMain]
+  val interpreters: mutable.Map[Channel, IMain] =
+    mutable.Map.empty[Channel, IMain]
 
-  def interpreter(channel: Channel)(f: (IMain, ByteArrayOutputStream) => Unit) =
+  def interpreter(channel: Channel)(f: (IMain, ByteArrayOutputStream) => Unit): Unit =
     this.synchronized {
       val si = interpreters.getOrElseUpdate(channel, newInterpreter())
       captureOutput(f(si, baos))
     }
 
-  def sendLines(channel: Channel, message: String) =
+  def sendLines(channel: Channel, message: String): Unit =
     message.split("\n")
       .iterator
       .filter(! _.isEmpty)
@@ -80,6 +87,12 @@ trait AbstractBot {
 
   def receive(msg: Msg): Unit =
     msg.message match {
+      case "@quit" =>
+        if (admins(msg.sender)) quit()
+      case Cmd("@join", m) =>
+        if (admins(msg.sender)) parseChannel(m).foreach(join(_))
+      case Cmd("@leave", m) =>
+        if (admins(msg.sender)) parseChannel(m).foreach(leave(_))
       case Cmd("!", m) =>
         interpreter(msg.channel) { (si, cout) =>
           sendLines(msg.channel, si.interpret(m) match {
@@ -102,7 +115,4 @@ trait AbstractBot {
       case _ =>
         ()
     }
-
-  def main(): Unit =
-    run()
 }

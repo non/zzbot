@@ -1,13 +1,16 @@
-package org.multibot
+package zzzbot
 
 import org.jibble.pircbot.PircBot
 
-class IrcBot(server: String = "irc.freenode.net") extends PircBot with AbstractBot {
+object IrcBot extends PircBot with AbstractBot {
 
   // concrete members
 
   // note: channels always start with #, users never do.
   type Channel = String
+
+  def parseChannel(s: String): Option[Channel] =
+    Util.parseHashChannel(s)
 
   def run(): Unit = {
     setName(botName)
@@ -16,20 +19,39 @@ class IrcBot(server: String = "irc.freenode.net") extends PircBot with AbstractB
     connect()
   }
 
+  def quit(): Nothing = {
+    disconnect()
+    System.exit(1)
+    sys.error("unreachable")
+  }
+
+  def join(ch: Channel): Unit =
+    joinChannel(ch)
+
+  def leave(ch: Channel): Unit =
+    partChannel(ch)
+
   def send(ch: Channel, msg: String): Unit =
     sendMessage(ch, msg)
 
   // platform-dependent implementation
 
-  lazy val botName = str("stripebot.name", "stripebot")
-  lazy val channels = strs("stripebot.channels", List("d_m_private"))
+  lazy val botName: String =
+    Util.str("bot.name", "zzzbot")
 
-  def connect(): Unit = {
+  lazy val server: String =
+    Util.str("bot.server", "irc.freenode.net")
+
+  lazy val channels: List[Channel] =
+    Util.strs("bot.channels", List("#d_m_private"))
+
+  def connect(): Unit =
     connect(server)
-    channels.foreach(joinChannel)
-  }
 
-  override def onDisconnect: Unit =
+  override def onConnect(): Unit =
+    channels.foreach(join)
+
+  override def onDisconnect(): Unit =
     while (true) {
       try {
         connect()
