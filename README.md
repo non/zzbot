@@ -2,13 +2,15 @@
 
 ### dedication
 
-> Say, black sheep, black, do you got some wool?
-> Yes, I do, man, my bag is full
->
-> It's the root of evil and you know the rest
-> But it's way ahead of what's second best
->
-> -- ZZ Top, "Just Got Paid"
+```
+Say, black sheep, black, do you got some wool?
+Yes, I do, man, my bag is full.
+
+It's the root of evil and you know the rest.
+But it's way ahead of what's second best!
+
+-- ZZ Top, "Just Got Paid"
+```
 
 ### overview
 
