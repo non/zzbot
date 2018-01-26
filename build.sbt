@@ -7,9 +7,11 @@ scalaVersion := "2.12.4"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++=
+  // platform dependencies
+  "org.scala-lang" % "scala-compiler" % "2.12.4" ::
   "pircbot" % "pircbot" % "1.5.0" ::
   "com.github.gilbertw1" %% "slack-scala-client" % "0.2.2" ::
-  "org.scala-lang" % "scala-compiler" % "2.12.4" ::
+  // preloaded libraries for imports
   "org.typelevel" %% "cats-core" % "1.0.1" ::
   "org.typelevel" %% "cats-free" % "1.0.1" ::
   "org.typelevel" %% "alleycats-core" % "1.0.1" ::

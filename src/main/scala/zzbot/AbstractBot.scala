@@ -55,7 +55,6 @@ trait AbstractBot {
     }
 
   def newInterpreter(): IMain = {
-
     val settings = new nsc.Settings(null)
     settings.plugin.value = plugins
     settings.YpartialUnification.value = true
