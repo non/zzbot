@@ -31,23 +31,23 @@ To use the bot, you'll want to:
 You can select the desired platform via `-Dbot.platform`, for example:
 
  * `-Dbot.platform=irc`: run an IRC bot
- * `-Dbot.platform=slack`: run a slack bot
+ * `-Dbot.platform=slack`: run a Slack bot
+
+The shared options are:
+
+ * `-Dbot.admins`: the IRC users who can administrate the bot (e.g. `billy,frank,dusty`)
+ * `-Dbot.imports`: any imports to run when the REPL starts (e.g. `cats._`)
+ * `-Dbot.plugins`: any compiler plugin jars to include (e.g. `path/to/plugin.jar`)
 
 The IRC options are:
 
  * `-Dbot.name`: the nickname for the bot to use (e.g. `mybot`)
  * `-Dbot.server`: the IRC server to connect to (default: `irc.freenode.net`)
  * `-Dbot.channels`: the IRC channels to connect to (e.g. `#scala`)
- * `-Dbot.admins`: the IRC users who can administrate the bot
- * `-Dbot.imports`: any imports to run when the REPL starts
- * `-Dbot.plugins`: any compiler plugin jars to include
 
-The slack options are:
+The slack option is:
 
  * `-Dbot.token`: the Slack API token to use (keep this secret!)
- * `-Dbot.admins`: the IRC users who can administrate the bot
- * `-Dbot.imports`: any imports to run when the REPL starts
- * `-Dbot.plugins`: any compiler plugin jars to include
  
 ### future work
 
