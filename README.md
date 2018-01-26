@@ -19,7 +19,7 @@ code. Currently it supports IRC and Slack.
 
 ### demo
 
-![Screenshot of the bot in action](https://github.com/non/zzbow/raw/master/demo.png)
+![Screenshot of the bot in action](https://github.com/non/zzbot/raw/master/demo.png)
 
 ### details
 
