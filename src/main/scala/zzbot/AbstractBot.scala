@@ -124,10 +124,14 @@ trait AbstractBot {
         interpreter(msg.channel) { (si, cout) =>
           send(msg.channel, postprocess(si.typeOfExpression(m).directObjectString))
         }
-      case ":reset" =>
-        interpreters -= msg.channel
-      case ":reset-all" =>
-        interpreters.clear()
+      case Cmd(":reify", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          send(msg.channel, interpret(si, s"_root_.scala.reflect.runtime.universe.reify { $m }", cout))
+        }
+      case Cmd(":time", m) =>
+        interpreter(msg.channel) { (si, cout) =>
+          send(msg.channel, interpret(si, s"_root_.zzbot.Util.timer { $m }", cout))
+        }
       case Cmd(":sizeof", m) =>
         interpreter(msg.channel) { (si, cout) =>
           send(msg.channel, interpret(si, s"_root_.zzbot.Util.sizeOf($m)", cout))
@@ -140,15 +144,11 @@ trait AbstractBot {
         interpreter(msg.channel) { (si, cout) =>
           send(msg.channel, interpret(si, s"_root_.zzbot.Util.staticSizeOf($m)", cout))
         }
-      case Cmd(":reify", m) =>
-        interpreter(msg.channel) { (si, cout) =>
-          send(msg.channel, interpret(si, s"_root_.scala.reflect.runtime.universe.reify { $m }", cout))
-        }
-      case Cmd(":time", m) =>
-        interpreter(msg.channel) { (si, cout) =>
-          send(msg.channel, interpret(si, s"_root_.zzbot.Util.timer { $m }", cout))
-        }
 
+      case ":reset" =>
+        interpreters -= msg.channel
+      case ":reset-all" =>
+        interpreters.clear()
       case ":quit" =>
         authenticate(msg.sender, ":quit") { quit() }
       case Cmd(":join", m) =>

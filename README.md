@@ -21,6 +21,42 @@ code. Currently it supports IRC and Slack.
 
 ![Screenshot of the bot in action](https://github.com/non/zzbot/raw/master/demo.png)
 
+### interacting with the bot
+
+The primary point of the bot is to evaluate code that you send to it.
+There are two basic ways to signal that you're sending code to be
+evaluated:
+
+ * Prefix with an exclamation point, `! <EXPR>`
+  * For example, `! val x = 9`.
+  + The space is mandatory, i.e. `!val x= 9` won't work.
+  + To evaluate `!x` you'd need to say `! !x`
+ * Prefix with a mention of the bot, `<MENTION> <EXPR>`
+  + On IRC, this would be `zzbot: val x = 9`
+  + On Slack, this would be `@zzbot val x = 9`
+
+In addition, the bot supports a number of auxilliary commands:
+
+ * `:type <EXPR>` - display resulting type of the expression
+ * `:reify <EXPR>` - show the correspoding tree for the expression
+ * `:time <EXPR>` - run the expression through a (rough) benchmark
+ * `:sizeof <EXPR>` - compute *size* of the given value
+ * `:fullsizeof <EXPR>` - compute *full size* of the given value
+ * `:staticsizeof <EXPR>` - compute *static size* of the given value
+ * `:reset` - reset the REPL for this channel
+ * `:reset-all` - reset the REPLs for all channels
+ * `:quit` - tell the bot to quit (**admin-only**)
+ * `:join <CHANNEL>` - tell the bot to join a channel (**admin-only, irc-only**)
+ * `:leave <CHANNEL>` - tell the bot to leave a channel (**admin-only, irc-only**)
+
+The benchmarking uses [thyme](https://github.com/Ichoran/thyme). For
+serious benchmarking, please consider using [JMH](http://openjdk.java.net/projects/code-tools/jmh/)
+(e.g. via the [sbt-jmh](https://github.com/ktoso/sbt-jmh) plugin).
+
+The sizing info is provided by
+[clouseau](https://github.com/non/clouseau) and should be interpreted
+using [its documentation](https://github.com/non/clouseau#details).
+
 ### details
 
 To use the bot, you'll want to:
@@ -52,7 +88,7 @@ The IRC options are:
 The slack option is:
 
  * `-Dbot.token`: the Slack API token to use (keep this secret!)
- 
+
 ### future work
 
 There are a number of avenues for future work:
