@@ -7,6 +7,8 @@ object IrcBot extends PircBot with AbstractBot {
   // concrete members
 
   // note: channels always start with #, users never do.
+  type Id = String
+  type Name = String
   type Channel = String
 
   def parseChannel(s: String): Option[Channel] =
@@ -32,12 +34,33 @@ object IrcBot extends PircBot with AbstractBot {
     partChannel(ch)
 
   def send(ch: Channel, msg: String): Unit =
-    sendMessage(ch, msg)
+    msg.split("\n")
+      .iterator
+      .filter(! _.isEmpty)
+      .take(5)
+      .foreach(m => sendLine(ch, " " + munge(m)))
+
+  def munge(s: String): String =
+    if (!s.isEmpty && s.charAt(0) == '\r') s.substring(1) else s
+
+  def sendLine(ch: Channel, line: String): Unit =
+    sendMessage(ch, line)
+
+  def preprocess(code: String): String =
+    code
+
+  def postprocess(code: String): String =
+    code
+
+  def name(s: String): Name = s
+  def id(s: String): Id = s
+  def nameToId(name: String): String = name
+  def idToName(id: String): String = id
+
+  def mention(name: String): String =
+    name + ":"
 
   // platform-dependent implementation
-
-  lazy val botName: String =
-    Util.str("bot.name", "zzbot")
 
   lazy val server: String =
     Util.str("bot.server", "irc.freenode.net")

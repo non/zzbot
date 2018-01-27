@@ -10,6 +10,8 @@ trait AbstractBot {
 
   // abstract members
 
+  type Id
+  type Name
   type Channel
 
   def parseChannel(s: String): Option[Channel]
@@ -20,10 +22,24 @@ trait AbstractBot {
   def leave(ch: Channel): Unit
   def send(ch: Channel, msg: String): Unit
 
+  def preprocess(code: String): String
+
+  def postprocess(code: String): String
+
+  def name(s: String): Name
+  def id(s: String): Id
+  def nameToId(name: Name): Id
+  def idToName(id: Id): Name
+
+  def mention(name: Name): String
+
   // platform-independent implementation
 
-  lazy val admins: Set[String] =
-    Util.prop("bot.admins", Set("d_m"))(_.split(",").toSet)
+  lazy val botName: Name =
+    name(Util.str("bot.name", "zzbot"))
+
+  lazy val admins: Set[Name] =
+    Util.prop("bot.admins", Set("d_m"))(_.split(",").toSet).map(name)
 
   lazy val imports: List[String] =
     Util.strs("bot.imports", Nil)
@@ -37,10 +53,7 @@ trait AbstractBot {
   final val baos = new ByteArrayOutputStream
   final val printStream = new PrintStream(baos)
 
-  case class Msg(channel: Channel, sender: String, message: String)
-  
-  def munge(s: String): String =
-    if (!s.isEmpty && s.charAt(0) == '\r') s.substring(1) else s
+  case class Msg(channel: Channel, sender: Id, message: String)
 
   def captureOutput(block: => Unit): Unit =
     try {
@@ -75,38 +88,41 @@ trait AbstractBot {
       captureOutput(f(si, baos))
     }
 
-  def sendLines(channel: Channel, message: String): Unit =
-    message.split("\n")
-      .iterator
-      .filter(! _.isEmpty)
-      .take(5)
-      .foreach(m => send(channel, " " + munge(m)))
-
   // FIXME: -Dscala.color breaks these regexes, but i'm not sure if
   // they are actually needed or not. it seems nice to know how to
   // refer to output (e.g. res33) although possibly it's a bit junky.
   def interpret(si: IMain, prog: String, cout: ByteArrayOutputStream): String =
-    si.interpret(prog) match {
-      case Results.Success =>
-        cout.toString.replaceAll("(?m:^res[0-9]+: +)", "")
-      case Results.Error =>
-        cout.toString.replaceAll("^<console>:[0-9]+: +", "")
-      case Results.Incomplete =>
-        "error: incomplete expression"
+    si.interpret(preprocess(prog)) match {
+      case Results.Success | Results.Error => postprocess(cout.toString)
+      case Results.Incomplete => "error: incomplete expression"
     }
 
-  val Cmd = """^([^ ]+) (.*)$""".r
+  def authenticate(senderId: Id, cmd: String)(body: => Unit): Unit = {
+    val sender = idToName(senderId)
+    if (admins(sender)) {
+      savedOut.println(s"$sender asked us to $cmd")
+      body
+    } else {
+      savedOut.println(s"$sender does not have permission to $cmd")
+    }
+  }
+
+  val Cmd = """^([^ ]+) ((?:.|\n)*)$""".r
 
   def receive(msg: Msg): Unit =
     msg.message match {
       case Cmd("!", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, m, cout))
+          send(msg.channel, interpret(si, m, cout))
+        }
+      case Cmd(s, m) if s == mention(botName) =>
+        interpreter(msg.channel) { (si, cout) =>
+          send(msg.channel, interpret(si, m, cout))
         }
 
       case Cmd(":type", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          send(msg.channel, si.typeOfExpression(m).directObjectString)
+          send(msg.channel, postprocess(si.typeOfExpression(m).directObjectString))
         }
       case ":reset" =>
         interpreters -= msg.channel
@@ -114,32 +130,32 @@ trait AbstractBot {
         interpreters.clear()
       case Cmd(":sizeof", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.sizeOf($m)", cout))
+          send(msg.channel, interpret(si, s"_root_.zzbot.Util.sizeOf($m)", cout))
         }
       case Cmd(":fullsizeof", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.fullSizeOf($m)", cout))
+          send(msg.channel, interpret(si, s"_root_.zzbot.Util.fullSizeOf($m)", cout))
         }
       case Cmd(":staticsizeof", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.staticSizeOf($m)", cout))
+          send(msg.channel, interpret(si, s"_root_.zzbot.Util.staticSizeOf($m)", cout))
         }
       case Cmd(":reify", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, s"_root_.scala.reflect.runtime.universe.reify { $m }", cout))
+          send(msg.channel, interpret(si, s"_root_.scala.reflect.runtime.universe.reify { $m }", cout))
         }
       case Cmd(":time", m) =>
         interpreter(msg.channel) { (si, cout) =>
-          sendLines(msg.channel, interpret(si, s"_root_.zzbot.Util.timer { $m }", cout))
+          send(msg.channel, interpret(si, s"_root_.zzbot.Util.timer { $m }", cout))
         }
-      case ":quit" =>
-        if (admins(msg.sender)) quit()
-      case Cmd(":join", m) =>
-        if (admins(msg.sender)) parseChannel(m).foreach(join(_))
-      case Cmd(":leave", m) =>
-        if (admins(msg.sender)) parseChannel(m).foreach(leave(_))
 
-      case _ =>
-        ()
+      case ":quit" =>
+        authenticate(msg.sender, ":quit") { quit() }
+      case Cmd(":join", m) =>
+        authenticate(msg.sender, ":join") { parseChannel(m).foreach(join(_)) }
+      case Cmd(":leave", m) =>
+        authenticate(msg.sender, ":leave") { parseChannel(m).foreach(leave(_)) }
+
+      case s => ()
     }
 }
