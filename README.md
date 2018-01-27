@@ -36,8 +36,9 @@ evaluated:
   + On Slack, this would be `@zzbot val x = 9`
 
 On Slack, it may be useful to post code inside of backticks to avoid
-markdown formatting. ZZ Bot will allow single or triple backticks, the following
-are all equivalent:
+markdown formatting, especially in code that uses `*` or `_`. ZZ Bot
+will allow single or triple backticks, the following are all
+equivalent:
 
 ````
 ! import spire.math.implicits._
