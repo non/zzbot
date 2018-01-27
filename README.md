@@ -19,7 +19,9 @@ code. Currently it supports IRC and Slack.
 
 ### demo
 
-![Screenshot of the bot in action](https://github.com/non/zzbot/raw/master/demo.png)
+![Screenshot of the IRC bot](https://github.com/non/zzbot/raw/master/demo.png)
+
+![Screenshot of the Slack bot](https://github.com/non/zzbot/raw/master/demo2.png)
 
 ### interacting with the bot
 

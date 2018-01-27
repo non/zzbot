@@ -93,8 +93,13 @@ trait AbstractBot {
   // refer to output (e.g. res33) although possibly it's a bit junky.
   def interpret(si: IMain, prog: String, cout: ByteArrayOutputStream): String =
     si.interpret(preprocess(prog)) match {
-      case Results.Success | Results.Error => postprocess(cout.toString)
-      case Results.Incomplete => "error: incomplete expression"
+      case Results.Success =>
+        postprocess(cout.toString)
+      case Results.Error =>
+        savedOut.println(s"failed: $prog")
+        postprocess(cout.toString)
+      case Results.Incomplete =>
+        "error: incomplete expression"
     }
 
   def authenticate(senderId: Id, cmd: String)(body: => Unit): Unit = {

@@ -49,7 +49,7 @@ object SlackBot extends AbstractBot {
 
     api = SlackApiClient(apiToken)
     client = SlackRtmClient(apiToken)
-    client.onMessage(m => receive(Msg(m.channel, m.user, m.text)))
+    client.onMessage(m => receive(Msg(m.channel, m.user, deescape(m.text))))
     client.onEvent(e => ()) // TODO
     api.listUsers.foreach(_.foreach(u => addUser(u.id, u.name)))
   }
@@ -61,10 +61,16 @@ object SlackBot extends AbstractBot {
   }
 
   def send(ch: Channel, msg: String): Unit =
-    client.sendMessage(ch, msg)
+    client.sendMessage(ch, escape(msg))
 
   val BlockRe = """^```\n((?:.|\n)+)\n```$""".r
   val CodeRe = """^ *`(.+)` *$""".r
+
+  def escape(s: String): String =
+    s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+  def deescape(s: String): String =
+    s.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
 
   def preprocess(code: String): String =
     code match {
