@@ -30,12 +30,12 @@ There are two basic ways to signal that you're sending code to be
 evaluated:
 
  * Prefix with an exclamation point, `! <EXPR>`
-  * For example, `! val x = 9`.
-  + The space is mandatory, i.e. `!val x= 9` won't work.
-  + To evaluate `!x` you'd need to say `! !x`
+ * For example, `! val x = 9`.
+    + The space is mandatory, i.e. `!val x= 9` won't work.
+    + To evaluate `!x` you'd need to say `! !x`
  * Prefix with a mention of the bot, `<MENTION> <EXPR>`
-  + On IRC, this would be `zzbot: val x = 9`
-  + On Slack, this would be `@zzbot val x = 9`
+    + On IRC, this would be `zzbot: val x = 9`
+    + On Slack, this would be `@zzbot val x = 9`
 
 On Slack, it may be useful to post code inside of backticks to avoid
 markdown formatting, especially in code that uses `*` or `_`. ZZ Bot
